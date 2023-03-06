@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface PetDao {
     PetEntity savePet(PetEntity petEntity);
-    Optional<PetEntity> getPet(Long petId);
-
+    Optional<PetEntity> getPetByPetId(Long petId);
+    void deletePetByPetId(Long petId);
     List<PetEntity> getAllPetByOwnerId(Long ownerId);
 
 }

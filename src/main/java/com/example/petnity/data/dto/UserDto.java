@@ -17,22 +17,32 @@ public class UserDto {
     @ToString
     @Builder
     public static class Info {
+        private Long userId;
+        private String accessToken;
+        private String refreshToken;
+        private String userAccount;
         private String userEmail;
         private String userPassword;
         private String userNickname;
         private String userName;
+        private String userThumbnailImageUrl;
+        private String userProfileImageUrl;
         private String userGender;
         private String userBirthYear;
         private String userBirthDay;
         private List<PetDto.Response> petDtoResponseList = new ArrayList<PetDto.Response>();
 
         public UserEntity toEntity(){
-
             return UserEntity.builder()
+                    .userId(userId)
+                    .userAccount(userAccount)
                     .userEmail(userEmail)
+                    .userPassword(userPassword)
                     .userNickname(userNickname)
                     .userName(userName)
                     .userPassword(userPassword)
+                    .userThumbnailImageUrl(userThumbnailImageUrl)
+                    .userProfileImageUrl(userProfileImageUrl)
                     .userGender(userGender)
                     .userBirthYear(userBirthYear)
                     .userBirthDay(userBirthDay)
@@ -41,6 +51,26 @@ public class UserDto {
         }
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @ToString
+    @Builder
+    public static class Login {
+        private String userAccount;
+        private String userPassword;
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @ToString
+    @Builder
+    public static class TokenInfo {
+        private String accessToken;
+        private String refreshToken;
+    }
 
     @Getter
     @NoArgsConstructor
@@ -48,25 +78,29 @@ public class UserDto {
     @ToString
     @Builder
     public static class Request{
-        @NotBlank(message = "이메일을 다시 확인해주세요.")
+        private Long userId;
+        private String accessToken;
+        private String refreshToken;
+        private String userAccount;
         private String userEmail;
-        @NotBlank(message = "비밀번호를 다시 확인해주세요.")
-        private String userPassword;
-        @NotBlank(message = "닉네임을 다시 확인해주세요.")
         private String userNickname;
-        @NotBlank(message = "이름을 다시 확인해주세요.")
         private String userName;
-        @NotBlank(message = "성별을 다시 확인해주세요.")
+        private String userThumbnailImageUrl;
+        private String userProfileImageUrl;
         private String userGender;
         private String userBirthYear;
         private String userBirthDay;
 
+
         public UserEntity toEntity(){
             return UserEntity.builder()
+                    .userId(userId)
+                    .userAccount(userAccount)
                     .userEmail(userEmail)
-                    .userName(userName)
                     .userNickname(userNickname)
-                    .userPassword(userPassword)
+                    .userName(userName)
+                    .userThumbnailImageUrl(userThumbnailImageUrl)
+                    .userProfileImageUrl(userProfileImageUrl)
                     .userGender(userGender)
                     .userBirthYear(userBirthYear)
                     .userBirthDay(userBirthDay)
@@ -76,18 +110,36 @@ public class UserDto {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @ToString
     @Builder
     public static class Response{
+        private Long userId;
+        private String accessToken;
+        private String userAccount;
         private String userEmail;
-        private String userPassword;
         private String userNickname;
         private String userName;
         private String userGender;
+        private String userThumbnailImageUrl;
+        private String userProfileImageUrl;
         private String userBirthYear;
         private String userBirthDay;
+        private List<PetDto.Response> petDtoResponseList = new ArrayList<PetDto.Response>();
+
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @ToString
+    @Builder
+    public static class PetList {
+        private String accessToken;
+        private List<PetDto.Response> petDtoResponseList = new ArrayList<PetDto.Response>();
     }
 
 }

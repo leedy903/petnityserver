@@ -5,15 +5,12 @@ import com.example.petnity.data.dao.UserDao;
 import com.example.petnity.data.dto.PetDto;
 import com.example.petnity.data.entity.PetEntity;
 import com.example.petnity.data.entity.UserEntity;
-import com.example.petnity.data.repository.PetRepository;
 import com.example.petnity.service.PetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -33,21 +30,21 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetDto.Response savePet(PetDto.Request petDto) {
+        LOGGER.info("[PetService] Perform {} of Petnity API.", "savePet");
         LOGGER.info("[PetService] Param :: petDtoRequest = {}", petDto.toString());
 
         PetEntity petEntity = petDto.toEntity();
 
-        Optional<UserEntity> userEntity = userDao.getUserByEmail(petDto.getOwnerEmail());
-
+        Optional<UserEntity> userEntity = userDao.getUserByUserId(petDto.getOwnerId());
         LOGGER.info("[PetService] Response :: userEntity= {}", userEntity.get().toString());
 
         petEntity.setOwnerEntity(userEntity.get());
 
         PetEntity savedPetEntity = petDao.savePet(petEntity);
-
         LOGGER.info("[PetService] Response :: savedPetEntity= {}", savedPetEntity.toString());
 
         PetDto.Response savedPetDtoResponse = PetDto.Response.builder()
+                .petId(savedPetEntity.getPetId())
                 .petName(savedPetEntity.getPetName())
                 .petKind(savedPetEntity.getPetKind())
                 .petBirthYear(savedPetEntity.getPetBirthYear())
@@ -59,19 +56,16 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public PetDto.Response updatePet(PetDto.Request petDto) {
-        return null;
-    }
-
-    @Override
-    public PetDto.Response getPet(Long petId) {
+    public PetDto.Response getPetByPetId(Long petId) {
+        LOGGER.info("[PetService] Perform {} of Petnity API.", "getPetById");
         LOGGER.info("[PetService] Param :: petId= {}", petId);
 
-        Optional<PetEntity> petEntity =  petDao.getPet(petId);
+        Optional<PetEntity> petEntity = petDao.getPetByPetId(petId);
 
         LOGGER.info("[PetService] Response :: petEntity= {}", petEntity.toString());
 
         PetDto.Response petDtoResponse = PetDto.Response.builder()
+                .petId(petEntity.get().getPetId())
                 .petName(petEntity.get().getPetName())
                 .petKind(petEntity.get().getPetKind())
                 .petBirthYear(petEntity.get().getPetBirthYear())
@@ -82,4 +76,13 @@ public class PetServiceImpl implements PetService {
         LOGGER.info("[PetService] Response :: petDtoResponse= {}", petDtoResponse.toString());
         return petDtoResponse;
     }
+
+    @Override
+    public void deletePetByPetId(Long petId){
+        LOGGER.info("[PetService] Perform {} of Petnity API.", "deletePetById");
+        LOGGER.info("[PetService] Param :: petId= {}", petId);
+
+        petDao.deletePetByPetId(petId);
+    }
+
 }

@@ -1,70 +1,74 @@
 package com.example.petnity.controller;
 
+import com.example.petnity.data.dto.KakaoDto;
 import com.example.petnity.data.dto.UserDto;
-import com.example.petnity.service.KakaoLoginService;
+import com.example.petnity.security.JwtManager;
 import com.example.petnity.service.UserService;
-import com.example.petnity.service.impl.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import com.example.petnity.service.KakaoLoginService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/api/v1/kakaologin-api")
 public class KakaoLoginController {
 
-    KakaoLoginService kakaoLoginService;
-    UserService userService;
+    private final Logger LOGGER = LoggerFactory.getLogger(KakaoLoginController.class);
+    private final UserService userService;
+    private final KakaoLoginService kakaoLoginService;
+    private final JwtManager jwtManager;
 
-//    @GetMapping("/login")
-//    public String loginPage(){
-//        return "kakaoCI/login";
-//    }
-
-    @Autowired
-    public KakaoLoginController(KakaoLoginService kakaoLoginService, UserService userService){
-        this.kakaoLoginService = kakaoLoginService;
+    public KakaoLoginController(UserService userService,
+                                KakaoLoginService kakaoLoginService,
+                                JwtManager jwtManager) {
         this.userService = userService;
-    }
-
-    @GetMapping(value = "/getKakaoAuthUrl")
-    public String getKakaoAuthUrl(HttpServletRequest request) throws Exception{
-        String reqUrl = "https://kauth.kakao.com/oauth/authorize" +
-                "?client_id=fd3786d57849589d07ee5f9e8ec1ef8d" +
-                "&redirect_uri=http://localhost:8080/login/kakao" +
-                "&response_type=code";
-
-        return reqUrl;
+        this.kakaoLoginService = kakaoLoginService;
+        this.jwtManager = jwtManager;
     }
 
 
-    @GetMapping(value = "/kakao")
-    public UserDto.Info kakaoLogin(@RequestParam String code) throws IOException{
-        System.out.println("code: " + code);
-        String access_token = kakaoLoginService.getKakaoAccessToken(code);
-        Map<String, Object> userInfo = kakaoLoginService.getUserInfo(access_token);
+    @PostMapping(value = "/login")
+    public ResponseEntity<UserDto.TokenInfo> kakaoLogin(@RequestBody KakaoDto.TokenInfo kakaoTokenInfo) throws IOException {
+        long StartTime = System.currentTimeMillis();
 
-        String kakaoAccountId = (String) userInfo.get("id");
-        String userName = (String) userInfo.get("nickname");
-        String userEmail = (String) userInfo.get("email");
+        LOGGER.info("[KakaoLoginController] Perform {} of Petnity API.", "kakaoLogin");
+        LOGGER.info("[KakaoLoginController] Param :: kakaoTokenInfo = {}.", kakaoTokenInfo.toString());
 
-        UserDto.Info userDtoInfo;
-        if (userService.kakaoLogin(kakaoAccountId) == null ){
-            userDtoInfo = UserDto.Info.builder()
-                    .userName(userName)
-                    .userEmail(userEmail)
-                    .build();
+        UserDto.Info userInfo = kakaoLoginService.getUserInfo(kakaoTokenInfo.getAccessToken());
+        LOGGER.info("[KakaoLoginController] User :: userInfo = {}.", userInfo.toString());
+
+        UserDto.Response response = userService.getUserByUserAccount(userInfo.getUserAccount());
+        LOGGER.info("[KakaoLoginController] Response :: response = {}.", response.toString());
+
+        if (response.getUserId() == null) {
+            response = userService.saveUser(userInfo);
+            LOGGER.info("[KakaoLoginController] Response :: saved response = {}", response.toString());
         }
-        userDtoInfo = userService.getUserByEmail(userEmail);
 
-        // if (userDtoInfo == null) => signup
-        // if (userDtoInfo != null) => login
+        userInfo.setUserId(response.getUserId());
+        UserDto.TokenInfo tokenInfo = jwtManager.createTokenInfo(userInfo);
+        LOGGER.info("[KakaoLoginController] Token :: tokenInfo = {}, Response Time = {}ms", tokenInfo.toString(), System.currentTimeMillis() - StartTime);
 
-        return userDtoInfo;
+        return ResponseEntity.status(HttpStatus.OK).body(tokenInfo);
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> kakaoLogout(@RequestBody KakaoDto.TokenInfo kakaoTokenInfo) {
+        long StartTime = System.currentTimeMillis();
+        LOGGER.info("[KakaoLoginController] Perform {} of Petnity API.", "kakaoLogout");
+
+        kakaoLoginService.kakaoLogout(kakaoTokenInfo.getAccessToken());
+        LOGGER.info("[KakaoLoginController] Response :: Response Time = {}ms",System.currentTimeMillis() - StartTime);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Logout");
     }
 
 }

@@ -26,9 +26,14 @@ public class PetDaoImpl implements PetDao {
     }
 
     @Override
-    public Optional<PetEntity> getPet(Long petId) {
+    public Optional<PetEntity> getPetByPetId(Long petId) {
         Optional<PetEntity> petEntity = petRepository.findById(petId);
         return petEntity;
+    }
+
+    @Override
+    public void deletePetByPetId(Long petId) {
+        petRepository.deleteById(petId);
     }
 
     @Override

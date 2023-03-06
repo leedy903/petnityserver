@@ -15,7 +15,6 @@ public class PetEntity extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long petId;
-    @Column(unique = true)
     private String petName;
     private String petKind;
     private String petGender;

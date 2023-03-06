@@ -6,7 +6,9 @@ import java.util.Optional;
 
 public interface UserDao {
     UserEntity saveUser(UserEntity userEntity);
-    void deleteUser(Long userId);
-    Optional<UserEntity> getUser(Long userId);
+    void deleteUserById(Long userId);
+    void deleteUserByEmail(String userEmail);
+    Optional<UserEntity> getUserByUserId(Long userId);
     Optional<UserEntity> getUserByEmail(String userEmail);
+    Optional<UserEntity> getUserByUserAccount(String userAccount);
 }

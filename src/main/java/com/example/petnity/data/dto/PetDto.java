@@ -16,12 +16,14 @@ public class PetDto {
     @Builder
     public static class Info{
         private Long petId;
+        private String accessToken;
+        private String refreshToken;
         private String petName;
         private String petKind;
         private String petGender;
         private String petBirthYear;
         private String petBirthDay;
-        private String ownerEmail;
+        private Long ownerId;
 
         public PetEntity toEntity(){
             return PetEntity.builder()
@@ -42,15 +44,19 @@ public class PetDto {
     @ToString
     @Builder
     public static class Request{
+        private Long petId;
+        private String accessToken;
+        private String refreshToken;
         private String petName;
         private String petKind;
         private String petGender;
         private String petBirthYear;
         private String petBirthDay;
-        private String ownerEmail;
+        private Long ownerId;
 
         public PetEntity toEntity(){
             return PetEntity.builder()
+                    .petId(petId)
                     .petName(petName)
                     .petKind(petKind)
                     .petGender(petGender)
@@ -67,21 +73,14 @@ public class PetDto {
     @ToString
     @Builder
     public static class Response{
+        private Long petId;
+        private String accessToken;
         private String petName;
         private String petKind;
         private String petGender;
         private String petBirthYear;
         private String petBirthDay;
 
-        public PetEntity toEntity(){
-            return PetEntity.builder()
-                    .petName(petName)
-                    .petKind(petKind)
-                    .petGender(petGender)
-                    .petBirthYear(petBirthYear)
-                    .petBirthDay(petBirthDay)
-                    .build();
-        }
     }
 
 }

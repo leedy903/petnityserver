@@ -5,6 +5,8 @@ import com.example.petnity.data.dto.PetDto;
 public interface PetService {
     PetDto.Response savePet(PetDto.Request petDto);
 
-    PetDto.Response updatePet(PetDto.Request petDto);
-    PetDto.Response getPet(Long petId);
+    PetDto.Response getPetByPetId(Long petId);
+
+    void deletePetByPetId(Long petId);
+
 }
