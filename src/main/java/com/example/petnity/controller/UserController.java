@@ -172,6 +172,8 @@ public class UserController {
 
             UserDto.Response badResponse = UserDto.Response.builder().build();
             LOGGER.info("[UserController] Response :: response = {}, Response Time = {}ms", badResponse.toString(), System.currentTimeMillis() - StartTime);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badResponse);
         }
 
         UserDto.Response response = userService.saveUser(userDto);

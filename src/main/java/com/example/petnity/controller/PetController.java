@@ -58,6 +58,18 @@ public class PetController {
         }
         LOGGER.info("[PetController] Token :: Valid Token");
 
+        Long userId = jwtManager.getUserIdFromToken(checkedAccessToken);
+
+        // Token user and ownerId must be same
+        if (petDto.getOwnerId() != userId) {
+            LOGGER.warn("[PetController] Exception :: Unmatched User");
+
+            PetDto.Response badResponse = PetDto.Response.builder().build();
+            LOGGER.info("[PetController] Response :: response = {}, Response Time = {}ms", badResponse.toString(), System.currentTimeMillis() - StartTime);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badResponse);
+        }
+
         PetDto.Response response = petService.savePet(petDto);
         response.setAccessToken(checkedAccessToken);
         LOGGER.info("[PetController] Response :: response = {}, Response Time = {}ms", response.toString(), System.currentTimeMillis() - StartTime);
